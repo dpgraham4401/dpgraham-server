@@ -1,0 +1,9 @@
+# configs
+.editorconfig
+
+# Misc
+.dockerignore
+
+# Git
+.github
+.gitignore

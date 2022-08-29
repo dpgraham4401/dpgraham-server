@@ -2,14 +2,12 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"os"
-	"path"
 	"strconv"
 )
 
@@ -26,7 +24,9 @@ func init() {
 		os.Getenv("DB_PASSWD"),
 		os.Getenv("DB_NAME"))
 	Db, err = sql.Open("postgres", pgConn)
-	CheckError(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // Article captures metadata about a blog post or tutorial etc.
@@ -41,18 +41,11 @@ type Article struct {
 }
 
 func main() {
-	//router := http.NewServeMux()
-	//router.HandleFunc("/blog/", handleArticle)
-	//log.Fatal(http.ListenAndServe(":8080", router))
-
 	router := gin.Default()
-
-	// This handler will match /user/john but will not match /user/ or /user
 	router.GET("/blog/:id", getBlogs)
-
 	err := router.Run(":8080")
 	if err != nil {
-		return
+		log.Fatal(err)
 	}
 }
 
@@ -61,23 +54,6 @@ func getBlogs(c *gin.Context) {
 	idInt, _ := strconv.Atoi(id)
 	myArticle, _ := getArticle(idInt)
 	c.IndentedJSON(http.StatusOK, myArticle)
-}
-
-//func handleArticle(w http.ResponseWriter, r *http.Request) {
-//	var err error
-//	switch r.Method {
-//	case "GET":
-//		err = articleHandleGet(w, r)
-//	}
-//	if err != nil {
-//		http.Error(w, err.Error(), http.StatusInternalServerError)
-//	}
-//}
-
-func CheckError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func getArticle(id int) (Article, error) {
@@ -89,18 +65,4 @@ func getArticle(id int) (Article, error) {
 		return blog, err
 	}
 	return blog, nil
-}
-
-func articleHandleGet(w http.ResponseWriter, r *http.Request) (err error) {
-	blogId, _ := strconv.Atoi(path.Base(r.URL.Path))
-	blog, _ := getArticle(blogId)
-	output, err := json.Marshal(blog)
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(output)
-	if err != nil {
-		return err
-	}
-	fmt.Println(blog.Title)
-
-	return nil
 }

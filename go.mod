@@ -1,4 +1,4 @@
-module github.com/dpgrahm4401/dpgraham-backend
+module github.com/dpgrahm4401/dpgraham-server
 
 go 1.18
 

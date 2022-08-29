@@ -21,7 +21,7 @@ func init() {
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
 		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWD"),
+		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_NAME"))
 	Db, err = sql.Open("postgres", pgConn)
 	if err != nil {
@@ -34,7 +34,7 @@ type Article struct {
 	Id          int    `json:"id"`
 	Title       string `json:"title"`
 	LastUpdate  string `json:"updateDate"`
-	CreateDate  string `json:"createDate"`
+	CreatedDate string `json:"createDate"`
 	Published   bool   `json:"publish"`
 	ArticleType string `json:"type"`
 	Content     string `json:"content"`
@@ -52,15 +52,15 @@ func main() {
 func getBlogs(c *gin.Context) {
 	id := c.Param("id")
 	idInt, _ := strconv.Atoi(id)
-	myArticle, _ := getArticle(idInt)
+	myArticle, _ := queryBlog(idInt)
 	c.IndentedJSON(http.StatusOK, myArticle)
 }
 
-func getArticle(id int) (Article, error) {
+func queryBlog(id int) (Article, error) {
 	blog := Article{}
 	err := Db.QueryRow("SELECT * FROM article WHERE id = $1", id).Scan(
 		&blog.Id, &blog.Title, &blog.LastUpdate, &blog.Published,
-		&blog.ArticleType, &blog.CreateDate, &blog.Content)
+		&blog.ArticleType, &blog.Content, &blog.CreatedDate)
 	if err != nil {
 		return blog, err
 	}

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 	"strconv"
 )
 
-//Db holds database connection
+// Db holds database connection
 var Db *sql.DB
 
 func init() {
@@ -40,23 +41,38 @@ type Article struct {
 }
 
 func main() {
-	// Routing
-	router := http.NewServeMux()
-	router.HandleFunc("/blog/", handleArticle)
+	//router := http.NewServeMux()
+	//router.HandleFunc("/blog/", handleArticle)
+	//log.Fatal(http.ListenAndServe(":8080", router))
 
-	log.Fatal(http.ListenAndServe(":8080", router))
-}
+	router := gin.Default()
 
-func handleArticle(w http.ResponseWriter, r *http.Request) {
-	var err error
-	switch r.Method {
-	case "GET":
-		err = articleHandleGet(w, r)
-	}
+	// This handler will match /user/john but will not match /user/ or /user
+	router.GET("/blog/:id", getBlogs)
+
+	err := router.Run(":8080")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
+
+func getBlogs(c *gin.Context) {
+	id := c.Param("id")
+	idInt, _ := strconv.Atoi(id)
+	myArticle, _ := getArticle(idInt)
+	c.IndentedJSON(http.StatusOK, myArticle)
+}
+
+//func handleArticle(w http.ResponseWriter, r *http.Request) {
+//	var err error
+//	switch r.Method {
+//	case "GET":
+//		err = articleHandleGet(w, r)
+//	}
+//	if err != nil {
+//		http.Error(w, err.Error(), http.StatusInternalServerError)
+//	}
+//}
 
 func CheckError(err error) {
 	if err != nil {

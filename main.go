@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"log"
@@ -42,6 +43,10 @@ type Article struct {
 
 func main() {
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowAllOrigins: true,
+		AllowMethods:    []string{"GET"},
+	}))
 	router.GET("/blog", getAllBlogs)
 	router.GET("/blog/:id", getBlog)
 	err := router.Run(":8080")

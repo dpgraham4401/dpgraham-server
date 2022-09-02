@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // db holds database connection
@@ -64,6 +65,14 @@ func getBlog(c *gin.Context) {
 
 func getAllBlogs(c *gin.Context) {
 	allBlogs, _ := queryAllBlog()
-	fmt.Println(allBlogs)
+	for i := 0; i < len(allBlogs); i++ {
+		// Todo: expand on markdown to text
+		//  either bring in a third party package, or write something yourself
+		allBlogs[i].Content = strings.ReplaceAll(allBlogs[i].Content, "#", "")
+		allBlogs[i].Content = strings.ReplaceAll(allBlogs[i].Content, "~", "")
+		if len(allBlogs[i].Content) >= 200 {
+			allBlogs[i].Content = allBlogs[i].Content[0:200]
+		}
+	}
 	c.IndentedJSON(http.StatusOK, allBlogs)
 }

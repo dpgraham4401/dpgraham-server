@@ -1,7 +1,20 @@
 package main
 
 func queryAllBlog() ([]Article, error) {
-	rows, err := db.Query("SELECT * FROM article WHERE published = true")
+	allBlogQuery, err := db.Prepare(
+		` SELECT
+                     id,
+                     to_char(created_date, 'mm/dd/yyyy'),
+                     to_char(updated_date, 'mm/dd/yyyy'),
+                     article_content,
+                     published,
+                     title,
+                     type
+                FROM
+                    article
+                WHERE
+                    published = true`)
+	rows, err := allBlogQuery.Query()
 	if err != nil {
 		return nil, err
 	}

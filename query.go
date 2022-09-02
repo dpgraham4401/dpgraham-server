@@ -8,8 +8,8 @@ func queryAllBlog() ([]Article, error) {
 	var blogs []Article
 	for rows.Next() {
 		var blog Article
-		if err := rows.Scan(&blog.Id, &blog.Title, &blog.LastUpdate, &blog.Published,
-			&blog.ArticleType, &blog.Content, &blog.CreatedDate); err != nil {
+		if err := rows.Scan(&blog.Id, &blog.CreatedDate, &blog.LastUpdate, &blog.Content, &blog.Published,
+			&blog.Title, &blog.ArticleType); err != nil {
 			return blogs, err
 		}
 		blogs = append(blogs, blog)
@@ -23,8 +23,8 @@ func queryAllBlog() ([]Article, error) {
 func queryBlog(id int) (Article, error) {
 	blog := Article{}
 	err := db.QueryRow("SELECT * FROM article WHERE id = $1", id).Scan(
-		&blog.Id, &blog.Title, &blog.LastUpdate, &blog.Published,
-		&blog.ArticleType, &blog.Content, &blog.CreatedDate)
+		&blog.Id, &blog.CreatedDate, &blog.LastUpdate, &blog.Content, &blog.Published,
+		&blog.Title, &blog.ArticleType)
 	if err != nil {
 		return blog, err
 	}

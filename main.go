@@ -19,11 +19,11 @@ func init() {
 	var err error
 	pgConn := fmt.Sprintf("host=%s port=%s user=%s password=%s "+
 		"dbname=%s sslmode=disable",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"))
+		os.Getenv("DPG_DB_HOST"),
+		os.Getenv("DPG_DB_PORT"),
+		os.Getenv("DPG_DB_USER"),
+		os.Getenv("DPG_DB_PASSWORD"),
+		os.Getenv("DPG_DB_NAME"))
 	db, err = sql.Open("postgres", pgConn)
 	if err != nil {
 		log.Fatal(err)
@@ -64,5 +64,6 @@ func getBlog(c *gin.Context) {
 
 func getAllBlogs(c *gin.Context) {
 	allBlogs, _ := queryAllBlog()
+	fmt.Println(allBlogs)
 	c.IndentedJSON(http.StatusOK, allBlogs)
 }

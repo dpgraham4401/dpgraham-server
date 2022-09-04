@@ -1,6 +1,33 @@
-package main
+package db
 
-func queryAllBlog() ([]Article, error) {
+import (
+	"database/sql"
+	"fmt"
+	"github.com/dpgrahm4401/dpgraham-server/models"
+	_ "github.com/lib/pq"
+	"log"
+	"os"
+)
+
+// db holds database connection
+var db *sql.DB
+
+func init() {
+	var err error
+	pgConn := fmt.Sprintf("host=%s port=%s user=%s password=%s "+
+		"dbname=%s sslmode=disable",
+		os.Getenv("DPG_DB_HOST"),
+		os.Getenv("DPG_DB_PORT"),
+		os.Getenv("DPG_DB_USER"),
+		os.Getenv("DPG_DB_PASSWORD"),
+		os.Getenv("DPG_DB_NAME"))
+	db, err = sql.Open("postgres", pgConn)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func QueryAllBlog() ([]models.Article, error) {
 	allBlogQuery, err := db.Prepare(
 		` SELECT
                      id,
@@ -18,9 +45,9 @@ func queryAllBlog() ([]Article, error) {
 	if err != nil {
 		return nil, err
 	}
-	var blogs []Article
+	var blogs []models.Article
 	for rows.Next() {
-		var blog Article
+		var blog models.Article
 		if err := rows.Scan(&blog.Id, &blog.CreatedDate, &blog.LastUpdate, &blog.Content, &blog.Published,
 			&blog.Title, &blog.ArticleType); err != nil {
 			return blogs, err
@@ -33,8 +60,8 @@ func queryAllBlog() ([]Article, error) {
 	return blogs, nil
 }
 
-func queryBlog(id int) (Article, error) {
-	blog := Article{}
+func QueryBlog(id int) (models.Article, error) {
+	blog := models.Article{}
 	err := db.QueryRow("SELECT * FROM article WHERE id = $1", id).Scan(
 		&blog.Id, &blog.CreatedDate, &blog.LastUpdate, &blog.Content, &blog.Published,
 		&blog.Title, &blog.ArticleType)

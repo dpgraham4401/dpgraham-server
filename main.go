@@ -13,12 +13,19 @@ import (
 func getBlog(c *gin.Context) {
 	id := c.Param("id")
 	idInt, _ := strconv.Atoi(id)
-	blogById, _ := db.QueryBlog(idInt)
-	c.IndentedJSON(http.StatusOK, blogById)
+	blogById, err := db.QueryBlog(idInt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "")
+	} else {
+		c.IndentedJSON(http.StatusOK, blogById)
+	}
 }
 
 func getAllBlogs(c *gin.Context) {
-	allBlogs, _ := db.QueryAllBlog()
+	allBlogs, err := db.QueryAllBlog()
+	if err != nil {
+		c.JSONP(http.StatusInternalServerError, "")
+	}
 	for i := 0; i < len(allBlogs); i++ {
 		allBlogs[i].Content = strings.ReplaceAll(allBlogs[i].Content, "#", "")
 		allBlogs[i].Content = strings.ReplaceAll(allBlogs[i].Content, "~", "")

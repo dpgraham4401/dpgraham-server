@@ -10,10 +10,15 @@ import (
 
 func GetBlog(c *gin.Context) {
 	id := c.Param("id")
-	idInt, _ := strconv.Atoi(id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	blogById, err := db.QueryBlog(idInt)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "")
+		c.JSON(http.StatusInternalServerError, nil)
+		return
 	} else {
 		c.IndentedJSON(http.StatusOK, blogById)
 	}

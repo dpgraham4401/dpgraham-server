@@ -9,6 +9,8 @@ import (
 
 func routerSetup() (router *gin.Engine) {
 	router = gin.Default()
+	router.GET("/blog", routes.GetAllBlogs)
+	router.GET("/blog/:id", routes.GetBlog)
 	router.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowMethods:    []string{"GET"},
@@ -18,8 +20,6 @@ func routerSetup() (router *gin.Engine) {
 
 func main() {
 	router := routerSetup()
-	router.GET("/blog", routes.GetAllBlogs)
-	router.GET("/blog/:id", routes.GetBlog)
 	err := router.Run(":8080")
 	if err != nil {
 		log.Fatal(err)

@@ -3,12 +3,13 @@ module github.com/dpgrahm4401/dpgraham-server
 go 1.18
 
 require (
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.1
+	github.com/go-playground/assert/v2 v2.0.1
 	github.com/lib/pq v1.10.6
 )
 
 require (
-	github.com/gin-contrib/cors v1.4.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect

@@ -1,0 +1,15 @@
+apiVersion: v2
+name: dpg-server
+description: A Helm chart to deploy dpgraham-server to the local home-lab cluster
+
+# A chart can be either an 'application' or a 'library' chart.
+type: application
+
+# both version should be incremented upon change
+
+# This is the chart version.
+version: 0.1.0
+
+# This is the version number of the application being deployed.
+# This will also act as default container tag if not specified
+appVersion: "0.1.0"

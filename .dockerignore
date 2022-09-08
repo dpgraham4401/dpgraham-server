@@ -2,6 +2,11 @@
 .editorconfig
 .env.example
 .dockerignore
+dpg-server/
+
+# Documentation
+README.md
+docs/
 
 # Documentation
 README.md

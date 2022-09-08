@@ -1,9 +1,13 @@
 # configs
 .editorconfig
-
-# Misc
+.env.example
 .dockerignore
+
+# Documentation
+README.md
+docs/
 
 # Git
 .github
 .gitignore
+.git/

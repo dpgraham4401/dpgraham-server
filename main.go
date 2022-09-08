@@ -7,14 +7,17 @@ import (
 	"log"
 )
 
+// routerSetup returns a fully configured mux(?) with routes attached
 func routerSetup() (router *gin.Engine) {
+	// Create and config gin.Engine
 	router = gin.Default()
-	router.GET("/blog", routes.GetAllBlogs)
-	router.GET("/blog/:id", routes.GetBlog)
 	router.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowMethods:    []string{"GET"},
 	}))
+	// Set gin routes AFTER config
+	router.GET("/blog", routes.GetAllBlogs)
+	router.GET("/blog/:id", routes.GetBlog)
 	return
 }
 

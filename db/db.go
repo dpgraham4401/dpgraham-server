@@ -41,6 +41,9 @@ func QueryAllBlog() ([]models.Article, error) {
                     article
                 WHERE
                     published = true`)
+	if err != nil {
+		return nil, err
+	}
 	rows, err := allBlogQuery.Query()
 	if err != nil {
 		return nil, err

@@ -4,12 +4,15 @@
 
 replicaCount: 1
 
+namespace:
+  name: dpg-server
+
 image:
   repository: dpgraham4401
   imageName: dpg-server
   pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  # Overrides the image tag whose default is the chart appVersion (i.e., should be the git/release tag)
+  tag: "v0.0.2"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -17,7 +20,7 @@ fullNameOverride: ""
 
 serviceAccount:
   # Specifies whether a service account should be created
-  create: true
+  create: false
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.

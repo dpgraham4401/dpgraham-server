@@ -2,6 +2,7 @@
 # Declare variables to be passed into your templates.
 # values can be access via {{ .Value.<first_level_yaml>.<second_level_yaml> }}
 
+
 replicaCount: 1
 
 namespace:
@@ -11,8 +12,9 @@ image:
   repository: dpgraham4401
   imageName: dpg-server
   pullPolicy: Always
+  port: 8080
   # Overrides the image tag whose default is the chart appVersion (i.e., should be the git/release tag)
-  tag: "v0.0.2"
+  tag: "v0.0.3"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -39,6 +41,8 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+# remember ClusterIP (default) is internally exposed and typically requires an ingress to access
+# NodePort externally exposes pods on a node's IP (and I loose ability to use an ingress + middleware)
 service:
   type: ClusterIP
   port: 80
@@ -69,12 +73,6 @@ resources: {}
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 3
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}

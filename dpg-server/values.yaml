@@ -48,17 +48,19 @@ service:
   port: 80
 
 ingress:
-  enabled: false
+  enabled: true
   className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  annotations: {
+    kubernetes.io/ingress.class: traefik
+#    traefik.ingress.kubernetes.io/router.middlewares: dpgraham-redirecthttp@kubernetescrd
+  }
+  host: dpgraham.com
   hosts:
-    - host: chart-example.local
+    - host: dpgraham.com
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
+#  tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local

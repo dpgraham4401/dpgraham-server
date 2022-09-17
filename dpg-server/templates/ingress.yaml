@@ -6,12 +6,13 @@ metadata:
   labels:
     {{- include "dpg-server.labels" . | nindent 4 }}
   annotations:
-    kubernetes.io/ingress.class: traefik
+    kubernetes.io/ingress.class: {{ .Values.ingress.className }}
+    traefik.ingress.kubernetes.io/router.middlewares: {{.Values.namespace.name}}-{{ .Values.middleware.name }}@kubernetescrd
 spec:
-{{/*  tls:*/}}
-{{/*    - hosts:*/}}
-{{/*        - {{ .Values.ingress.host }}*/}}
-{{/*      secretName: le-prod*/}}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host }}
+      secretName: {{ .Values.ingress.secretName }}
   rules:
     - host: {{ .Values.ingress.host }}
       http:

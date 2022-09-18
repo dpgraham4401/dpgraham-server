@@ -16,7 +16,7 @@ image:
   pullPolicy: IfNotPresent
   port: 8080
   # Overrides the image tag whose default is the chart appVersion (i.e., should be the git/release tag)
-  tag: "v0.0.3"
+  tag: "v0.0.4"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -59,7 +59,7 @@ ingress:
   hosts:
     - host: dpgraham.com
       paths:
-        - path: /
+        - path: /api
           pathType: Prefix
   tls:
       secretName: le-prod

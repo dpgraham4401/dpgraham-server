@@ -16,8 +16,11 @@ func routerSetup() (router *gin.Engine) {
 		AllowMethods:    []string{"GET"},
 	}))
 	// Set gin routes AFTER config
-	router.GET("/blog", routes.GetAllBlogs)
-	router.GET("/blog/:id", routes.GetBlog)
+	api := router.Group("/api")
+	{
+		api.GET("/blog", routes.GetAllBlogs)
+		api.GET("/blog/:id", routes.GetBlog)
+	}
 	return
 }
 

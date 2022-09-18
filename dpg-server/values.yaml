@@ -59,7 +59,7 @@ ingress:
   hosts:
     - host: dpgraham.com
       paths:
-        - path: /
+        - path: /api
           pathType: Prefix
   tls:
       secretName: le-prod

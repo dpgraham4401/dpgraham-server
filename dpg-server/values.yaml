@@ -8,7 +8,7 @@ db_password: replace_this_password_with_set_flag
 db_user: replace_this_username_with_set_flag
 
 namespace:
-  name: dpgserver
+  name: dpgraham
 
 image:
   repository: dpgraham4401

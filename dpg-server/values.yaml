@@ -43,8 +43,6 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-# remember ClusterIP (default) is internally exposed and typically requires an ingress to access
-# NodePort externally exposes pods on a node's IP (and I loose ability to use an ingress + middleware)
 service:
   type: ClusterIP
   port: 80
@@ -58,18 +56,15 @@ ingress:
   annotations: {
     kubernetes.io/ingress.class: traefik
   }
-  # I'm using the below 2 values until I figure out the intended way to use things like arrays from Values.yaml
-  host: dpgraham.com
-  secretName: le-prod
   hosts:
     - host: dpgraham.com
       paths:
         - path: /
-          pathType: ImplementationSpecific
-#  tls:
-#    - secretName: le-prod
-#      hosts:
-#        - chart-example.local
+          pathType: Prefix
+  tls:
+      secretName: le-prod
+      hosts:
+        - dpgraham.com
 
 resources: {}
   #   cpu: 100m
@@ -81,6 +76,6 @@ resources: {}
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+  maxReplicas: 4
+#  targetCPUUtilizationPercentage: 80
+#  targetMemoryUtilizationPercentage: 80

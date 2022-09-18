@@ -4,9 +4,9 @@ metadata:
   name: {{ include "dpg-server.fullname" . }}-tls-cert
   namespace: {{ .Values.namespace.name }}
 spec:
-  secretName: {{ .Values.ingress.secretName }}
+  secretName: {{ .Values.ingress.tls.secretName }}
   issuerRef:
     name: le-issuer
     kind: ClusterIssuer
   dnsNames:
-    - {{ .Values.ingress.host }}
+    {{ toYaml .Values.ingress.tls.hosts | indent 4 }}

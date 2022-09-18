@@ -8,7 +8,7 @@ spec:
     server: https://acme-staging-v02.api.letsencrypt.org/directory # staging server
     email: dpgraham4401@gmail.com
     privateKeySecretRef:
-      name: {{ .Values.ingress.secretName }}
+      name: {{ .Values.ingress.tls.secretName }}
     solvers:
       - http01:
           ingress:

@@ -1,3 +1,5 @@
+{{- $fullName := include "dpg-server.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -11,16 +13,20 @@ metadata:
 spec:
   tls:
     - hosts:
-        - {{ .Values.ingress.host }}
-      secretName: {{ .Values.ingress.secretName }}
+      {{ toYaml .Values.ingress.tls.hosts | indent 6 }}
+      secretName: {{ .Values.ingress.tls.secretName }}
   rules:
-    - host: {{ .Values.ingress.host }}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
       http:
         paths:
-          - path: /
-            pathType: Prefix
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "dpg-server.fullname" . }}
+                name: {{ $fullName }}
                 port:
-                  number: 80
+                  number: {{ $svcPort }}
+          {{- end }}
+    {{- end }}

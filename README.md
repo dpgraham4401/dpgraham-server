@@ -1,3 +1,3 @@
 # DPG-Server
 
-Docker image that contains the Go API server that complements the React font end.
+dpgraham.com http server that compliments the React font end.

@@ -4,9 +4,8 @@
 .dockerignore
 dpg-server/
 
-# Documentation
-README.md
-docs/
+# static
+content/
 
 # Documentation
 README.md

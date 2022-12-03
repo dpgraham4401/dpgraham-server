@@ -32,6 +32,8 @@ head over to https://aws.amazon.com/console/ and sign up for an account.
 #### 2. Activate MFA (optional)
 To protect your account, I recommend setting up multifactor authentication (MFA) via the security credentials page.
 
+![activating multi facot authentication](https://d3gwcypbkjc953.cloudfront.net/images/aws_cdn/activate_mfa.png)
+
 ### 3. Create an S3 bucket
 Amazon described their Simple Storage Service (S3) as such
 
@@ -40,12 +42,16 @@ Amazon described their Simple Storage Service (S3) as such
 To over simplify, just think of S3 as the place we'll actually store our content. that's its only job.
 
 * From the AWS console homepage, bring up the `Services` menu from the top left. Scroll down to `Storage`, and select `S3`.
+  ![activating multi facot authentication](https://d3gwcypbkjc953.cloudfront.net/images/aws_cdn/s3_step1.png)
+
 * Click `Create Bucket` and enter a Bucket Name. The name must be unique amongst all of AWS, and you should choose a [DNS-compliant name](https://duckduckgo.com/?t=ffab&q=DNS+compliant+name&ia=web) since this name will be part of the URI to access the bucket.
 * Choose a region that's close to you for now.
 * Scroll down to the card titled `Block Public Access settings for this bucket`
     * Uncheck `block all public access`
     * Check the acknowledgement
     * ponder the risks
+
+![activating multi facot authentication](https://d3gwcypbkjc953.cloudfront.net/images/aws_cdn/s3_step2.png)
 
 ### 4. Setup AWS CloudFront
 At this point, we've created a way to store or static content, but we don't have a good way to access it.
@@ -56,6 +62,9 @@ Enter [AWS CloudFront](https://docs.aws.amazon.com/AmazonCloudFront/latest/Devel
     * Select the `Services` dropdown
     * Scroll down to `Networking & Content Delivery`
     * Click `CloudFront`
+
+![activating multi facot authentication](https://d3gwcypbkjc953.cloudfront.net/images/aws_cdn/cloudfront_step1.png)
+
 * On the next page, take a moment to read the AWS free tier limits and select `Create a CloudFront Distribution`
     * From the `Origin domain` select your recently made s3 bucket
     * Scroll down, click the radio boxes next to...
@@ -63,6 +72,8 @@ Enter [AWS CloudFront](https://docs.aws.amazon.com/AmazonCloudFront/latest/Devel
     * You can leave the remaining defaults for now.
     * Scroll to the bottom to Create Distribution
     * Copy the `Distribution domain name` to your new CloudFront and save it for later.
+
+![activating multi facot authentication](https://d3gwcypbkjc953.cloudfront.net/images/aws_cdn/cloudfront_step2.png)
 
 ### 5. Create an IAM User/Group
 At this point, our CDN is set up, but we need to create a way to access our content via [AWS' Identity and Access Management (IAM) service](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html).
@@ -75,16 +86,25 @@ To quote AWS...
     * Select the `Services` dropdown
     * Scroll down to `Security, Identity, & Compliance` in the left menu.
     * Click `IAM`
+
+![activating multi facot authentication](https://d3gwcypbkjc953.cloudfront.net/images/aws_cdn/IAM_step1.png)
+
 * After page load, select `user` from the left menu, and click `Add User`
 * Create a new IAM user
     * Add a username
     * Click the check next to `Access key - programatic access`
     * click next
+
+![activating multi facot authentication](https://d3gwcypbkjc953.cloudfront.net/images/aws_cdn/IAM_user_name.png)
+
 * Create a new group and add our new IAM user
     * If you're familiar with *nix groups, these act just like that.
     * give the group a descriptive name
     * use the filter bar to add two security policies to your new group `AmazonS3FullAccess` & `CloudFrontFullAccess`
     * Add the new user to the group and create the user
+
+![activating multi facot authentication](https://d3gwcypbkjc953.cloudfront.net/images/aws_cdn/IAM_group_access.png)
+
 * After you successfully create the user, a page will show your new user's Access ID and Key.
     * **Copy these and store them in a safe place. They will not be visible after leaving this page**.
 
@@ -114,7 +134,7 @@ $ aws s3 sync /path/to/dir/with/images/ s3://[YOUR_S3_BUCKET_NAME]/images --dele
 Replace the path to your directory and the name of you s3 bucket followed by the path you'd like to be to access the content (e.g., `/images`).
 
 ### 8. Congrats
-That's it! You should now be able to access<sup>1</sup> your content at the cloudfront URL that we copied earlier. For us, it was https://d1738nvaauqo1n.cloudfront.net, so if we wanted to access our images/floating_nature.jpg from our fresh CDN, we would navigate to https://d1738nvaauqo1n.cloudfront.net/images/floating_nature.jpg
+That's it! You should now be able to access* your content at the cloudfront URL that we copied earlier. For us, it was https://d1738nvaauqo1n.cloudfront.net, so if we wanted to access our images/floating_nature.jpg from our fresh CDN, we would navigate to https://d1738nvaauqo1n.cloudfront.net/images/floating_nature.jpg
 
 ### 9. Troubleshooting AccessDenied errors
 After initially creating my CDN, I received an AccessDenied Error in XML format. To get around this, navigate to your new S3 bucket, go to the Permissions Tab, and scroll down to the Bucket Policy section and create a new policy in JSON format.
@@ -134,4 +154,4 @@ After initially creating my CDN, I received an AccessDenied Error in XML format.
 ```
 replacing dpgraham-sss-test with your bucket's name.
 
- <sup>1</sup>Note, it may take some time before you can actually view your content. I've heard as short as 25 minutes, but it may take longer.
+ *Note, it may take some time before you can actually view your content. I've heard as short as 25 minutes, but it may take longer.

@@ -1,0 +1,27 @@
+name: 'Dependency Review'
+# When a PR is made and the dependencies change, check for vulnerabilities and that the
+# licenses are permissive (not GPL).
+
+on:
+  pull_request:
+    paths:
+      - 'go.sum'
+      - 'go.mod'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v3
+
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v3
+        with:
+          comment-summary-in-pr: true
+          fail-on-severity: high

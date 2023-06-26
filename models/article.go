@@ -1,12 +1,12 @@
 package models
 
-// Article captures metadata about a blog post or tutorial etc.
+// Article captures metadata about a article, tutorial, blog etc.
 type Article struct {
 	Id          int    `json:"id"`
 	Title       string `json:"title"`
 	LastUpdate  string `json:"updateDate"`
 	CreatedDate string `json:"createDate"`
 	Published   bool   `json:"publish"`
-	ArticleType string `json:"type"`
+	Author      string `json:"author"`
 	Content     string `json:"content"`
 }

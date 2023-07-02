@@ -9,10 +9,16 @@ import (
 	"os"
 )
 
-// db holds database connection
-var db *sql.DB
+// getEnv is a local helper function use an environment variable or fallback if not set
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
 
-func init() {
+// ConnectDatabase is a returns a database connection
+func ConnectDatabase() *sql.DB {
 	var err error
 	pgConn := fmt.Sprintf("host=%s port=%s user=%s password=%s "+
 		"dbname=%s sslmode=disable",
@@ -21,13 +27,14 @@ func init() {
 		os.Getenv("DPG_DB_USER"),
 		os.Getenv("DPG_DB_PASSWORD"),
 		os.Getenv("DPG_DB_NAME"))
-	db, err = sql.Open("postgres", pgConn)
+	db, err := sql.Open("postgres", pgConn)
 	if err != nil {
 		log.Fatal(err)
 	}
+	return db
 }
 
-func QueryAllArticles() ([]models.Article, error) {
+func QueryAllArticles(db *sql.DB) ([]models.Article, error) {
 	allArticleQuery, err := db.Prepare(
 		` SELECT
                      id,
@@ -63,7 +70,7 @@ func QueryAllArticles() ([]models.Article, error) {
 	return articles, nil
 }
 
-func QueryArticle(id int) (models.Article, error) {
+func QueryArticle(db *sql.DB, id int) (models.Article, error) {
 	article := models.Article{}
 	err := db.QueryRow("SELECT * FROM articles WHERE id = $1", id).Scan(
 		&article.Id, &article.CreatedDate, &article.LastUpdate, &article.Content, &article.Published,

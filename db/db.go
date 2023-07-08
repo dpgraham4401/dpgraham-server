@@ -9,6 +9,15 @@ import (
 	"os"
 )
 
+type ArticleStore struct {
+	DB *sql.DB
+}
+
+type ArticleQuerier interface {
+	All() ([]models.Article, error)
+	ByID(id int) (models.Article, error)
+}
+
 // getEnv is a local helper function use an environment variable or fallback if not set
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -17,8 +26,8 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-// ConnectDatabase is a returns a database connection
-func ConnectDatabase() *sql.DB {
+// ConnectDatabase is a returns a pointer to a database connection
+func ConnectDatabase() *ArticleStore {
 	var err error
 	pgConn := fmt.Sprintf("host=%s port=%s user=%s password=%s "+
 		"dbname=%s sslmode=disable",
@@ -31,11 +40,12 @@ func ConnectDatabase() *sql.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return db
+	articleStore := &ArticleStore{DB: db}
+	return articleStore
 }
 
-func QueryAllArticles(db *sql.DB) ([]models.Article, error) {
-	allArticleQuery, err := db.Prepare(
+func (a *ArticleStore) All() ([]models.Article, error) {
+	allArticleQuery, err := a.DB.Prepare(
 		` SELECT
                      id,
                      to_char(created_date, 'mm/dd/yyyy'),
@@ -70,9 +80,9 @@ func QueryAllArticles(db *sql.DB) ([]models.Article, error) {
 	return articles, nil
 }
 
-func QueryArticle(db *sql.DB, id int) (models.Article, error) {
+func (a *ArticleStore) ByID(id int) (models.Article, error) {
 	article := models.Article{}
-	err := db.QueryRow("SELECT * FROM articles WHERE id = $1", id).Scan(
+	err := a.DB.QueryRow("SELECT * FROM articles WHERE id = $1", id).Scan(
 		&article.Id, &article.CreatedDate, &article.LastUpdate, &article.Content, &article.Published,
 		&article.Title, &article.Author)
 	if err != nil {

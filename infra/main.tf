@@ -18,11 +18,11 @@ provider "google" {
 }
 
 
-resource "google_compute_network" "vpc_network" {
-  name = "terraform-network"
+resource "google_compute_network" "vpc" {
+  name = "dpgraham-vpc"
 }
 
-resource "google_sql_database_instance" "dpgraham_postgres" {
+resource "google_sql_database_instance" "staging" {
   name             = "dpgraham-postgres"
   database_version = "POSTGRES_14"
   region           = var.region
@@ -39,14 +39,69 @@ resource "google_sql_database_instance" "dpgraham_postgres" {
   }
 }
 
-resource "google_sql_database" "dpgraham_database" {
+resource "google_sql_database" "dpgraham_sql" {
   name     = "dpgraham"
-  instance = google_sql_database_instance.dpgraham_postgres.name
+  instance = google_sql_database_instance.staging.name
 }
 
 resource "google_sql_user" "users" {
-  instance = google_sql_database_instance.dpgraham_postgres.name
+  instance = google_sql_database_instance.staging.name
   type     = "BUILT_IN"
   name     = var.db_username
   password = var.db_password
+}
+
+# Example apache server we'll use to test Cloud DNS
+resource "google_compute_instance" "test_apache" {
+  name         = "test-apache-instance"
+  machine_type = "e2-micro"
+  zone         = "us-east1-b"
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2204-lts"
+    }
+  }
+
+  network_interface {
+    network = google_compute_network.vpc.name
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+  metadata_startup_script = <<-EOF
+  sudo apt-get update && \
+  sudo apt-get install apache2 -y && \
+  echo "<!doctype html><html><body><h1>Hello World!</h1></body></html>" > /var/www/html/index.html
+  EOF
+}
+
+# to allow http traffic
+resource "google_compute_firewall" "dpgraham_http" {
+  name    = "allow-http-traffic"
+  network = google_compute_network.vpc.name
+  allow {
+    ports    = ["80"]
+    protocol = "tcp"
+  }
+  source_ranges = ["0.0.0.0/0"]
+}
+
+# to create a DNS zone
+resource "google_dns_managed_zone" "dpgraham_com" {
+  name          = "dpgraham-zone"
+  dns_name      = "dpgraham.com."
+  description   = "DNS zone following the google create-domain-tutorial"
+  force_destroy = "true"
+}
+
+# to register web-server's ip address in DNS
+resource "google_dns_record_set" "dpgraham_com_record_set" {
+  name         = google_dns_managed_zone.dpgraham_com.dns_name
+  managed_zone = google_dns_managed_zone.dpgraham_com.name
+  type         = "A"
+  ttl          = 300
+  rrdatas = [
+    google_compute_instance.test_apache.network_interface[0].access_config[0].nat_ip
+  ]
 }

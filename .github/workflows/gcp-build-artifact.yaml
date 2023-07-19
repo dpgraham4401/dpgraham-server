@@ -47,6 +47,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha
+          flavor: |
+            latest=auto
 
       - name: Authenticate Google Cloud
         uses: google-github-actions/auth@v1

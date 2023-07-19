@@ -11,6 +11,9 @@
 name: Docker build and push to Artifact Registry
 
 on:
+  push:
+    branches:
+      - main
   release:
     types: [published]
 

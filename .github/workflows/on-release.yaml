@@ -3,9 +3,6 @@
 name: On Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
   release:
     types: [ published ]
 

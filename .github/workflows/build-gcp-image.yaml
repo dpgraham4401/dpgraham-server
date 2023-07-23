@@ -1,4 +1,4 @@
-# This Workflow builds and pushes a Docker image to Google Artifact Registry
+# Reusable Workflow to build and pushes a Docker image to Google Artifact Registry
 
 # Prerequisites:
 # 1. Create service account
@@ -6,32 +6,41 @@
 # 2. Generate service account key
 #   2a. convert multiline key to single line with jq command (cat key.json | jq -r tostring)
 #   2b. create environment secret, Name: GOOGLE_CREDENTIALS, Value: key.json contents
-# 3. Make sure the Artifact repo has already been provisioned. Add to env:
+# 3. Make sure the Artifact repo has already been provisioned.
 
 name: Docker build and push to Artifact Registry
 
 on:
-  push:
-    branches:
-      - main
-  release:
-    types: [ published ]
+  workflow_call:
+    inputs:
+      environment:
+        description: 'The environment to deploy to'
+        required: true
+        type: string
+        default: 'production'
+    outputs:
+      version:
+        description: 'The version of the image that was built'
+        value: ${{ jobs.build_push.outputs.version }}
 
 env:
-  PROJECT_ID: dpgraham
-  GOOGLE_REGISTRY_LOCATION: us-east1
-  REPOSITORY: dpgraham-com
-  IMAGE_NAME: dpgraham-server
+  PROJECT_ID: ${{ vars.PROJECT_ID }}
+  REPOSITORY: ${{ vars.REPOSITORY }}
+  IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+  GOOGLE_REGISTRY_LOCATION: ${{ vars.GOOGLE_REGISTRY_LOCATION }}
+
 
 jobs:
-  build-push:
+  build_push:
     name: Build Image for GCP
-    environment: staging
+    environment: ${{ inputs.environment }}
     permissions:
       contents: 'read'
       id-token: 'write'
     runs-on: ubuntu-latest
-
+    outputs:
+      version: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -42,7 +51,6 @@ jobs:
         with:
           images: ${{ env.GOOGLE_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
             type=ref,event=pr
             type=ref,event=tag
             type=semver,pattern={{version}}

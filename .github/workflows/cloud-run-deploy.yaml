@@ -52,3 +52,4 @@ jobs:
         with:
           service: ${{ inputs.service }}
           image: ${{ env.GOOGLE_REGISTRY_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ inputs.version }}
+          region: ${{ env.GOOGLE_REGISTRY_LOCATION }}

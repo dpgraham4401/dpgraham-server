@@ -1,6 +1,9 @@
 resource "google_cloud_run_v2_service" "default" {
   name     = var.name
   location = var.region
+  lifecycle {
+    ignore_changes = [template, client, client_version, labels]
+  }
 
   template {
     containers {

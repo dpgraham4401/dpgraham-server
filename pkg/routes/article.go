@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/dpgrahm4401/dpgraham-server/db"
+	"dpgraham.com/pkg/db"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -15,11 +15,13 @@ type Env struct {
 // GetArticle top level handlerFunc that returns an article given an ID
 func (env *Env) GetArticle(c *gin.Context) {
 	id := c.Param("id")
+	// Check the parameter is a valid integer
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// Get the article from the database
 	articleById, err := env.Articles.ByID(idInt)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, nil)

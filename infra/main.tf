@@ -17,21 +17,6 @@ provider "google" {
   zone    = "us-east1-b"
 }
 
-
-resource "google_compute_network" "vpc" {
-  name = "dpgraham-vpc"
-}
-resource "google_project_service" "vpcaccess-api" {
-  project = var.project
-  service = "vpcaccess.googleapis.com"
-}
-
-resource "google_vpc_access_connector" "dpgraham-vpc-connector" {
-  name          = "dpgraham-vpc-connector"
-  network       = google_compute_network.vpc.name
-  ip_cidr_range = "10.14.0.0/28"
-}
-
 resource "google_sql_database_instance" "dpgraham_postgres" {
   name             = "dpgraham-postgres"
   database_version = "POSTGRES_14"
@@ -61,12 +46,37 @@ resource "google_sql_user" "users" {
   password = var.db_password
 }
 
+resource "google_compute_network" "vpc" {
+  name = "dpgraham-vpc"
+}
+
+resource "google_project_service" "vpcaccess-api" {
+  project = var.project
+  service = "vpcaccess.googleapis.com"
+}
+
+resource "google_vpc_access_connector" "dpgraham-vpc-connector" {
+  name          = "dpgraham-vpc-connector"
+  network       = google_compute_network.vpc.name
+  ip_cidr_range = "10.14.0.0/28"
+}
+
+#module "database" {
+#  source      = "./modules/sql"
+#  name        = var.db_name
+#  db_password = var.db_password
+#  db_username = var.db_username
+#  environment = "development"
+#  vpc         = google_compute_network.vpc.id
+#}
+
 module "load_balancer" {
   source           = "./modules/gcp-load-balancer"
   name             = "dpgraham-frontend"
   backend_service  = module.server-service.name
   frontend_service = module.frontend-service.name
 }
+
 
 # The domain modules is used to provision resources, such as DNS zones and record sets for our domain
 module "domain" {

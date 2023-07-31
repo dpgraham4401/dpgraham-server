@@ -12,13 +12,13 @@ terraform {
 }
 
 provider "google" {
-  project = "dpgraham"
-  region  = "us-east1"
+  project = var.project
+  region  = var.region
   zone    = "us-east1-b"
 }
 
 resource "google_sql_database_instance" "dpgraham_postgres" {
-  name             = "dpgraham-postgres"
+  name             = "${var.project}-postgres"
   database_version = "POSTGRES_14"
   region           = var.region
   project          = var.project
@@ -35,7 +35,7 @@ resource "google_sql_database_instance" "dpgraham_postgres" {
 }
 
 resource "google_sql_database" "dpgraham_sql" {
-  name     = "dpgraham"
+  name     = var.project
   instance = google_sql_database_instance.dpgraham_postgres.name
 }
 
@@ -47,7 +47,7 @@ resource "google_sql_user" "users" {
 }
 
 resource "google_compute_network" "vpc" {
-  name = "dpgraham-vpc"
+  name = "${var.project}-vpc"
 }
 
 resource "google_project_service" "vpcaccess-api" {
@@ -56,7 +56,7 @@ resource "google_project_service" "vpcaccess-api" {
 }
 
 resource "google_vpc_access_connector" "dpgraham-vpc-connector" {
-  name          = "dpgraham-vpc-connector"
+  name          = "${var.project}-vpc-connector"
   network       = google_compute_network.vpc.name
   ip_cidr_range = "10.14.0.0/28"
 }
@@ -72,7 +72,7 @@ resource "google_vpc_access_connector" "dpgraham-vpc-connector" {
 
 module "load_balancer" {
   source           = "./modules/gcp-load-balancer"
-  name             = "dpgraham-frontend"
+  name             = "${var.project}-frontend"
   backend_service  = module.server-service.name
   frontend_service = module.frontend-service.name
 }
@@ -95,18 +95,18 @@ resource "google_artifact_registry_repository" "dpgraham_com" {
 
 module "frontend-service" {
   source        = "./modules/cloud-run"
-  name          = "dpgraham-frontend"
+  name          = "${var.project}-frontend"
   image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", google_artifact_registry_repository.dpgraham_com.location, var.project, google_artifact_registry_repository.dpgraham_com.repository_id, var.client_image_name)
   vpc_connector = google_vpc_access_connector.dpgraham-vpc-connector.id
   port          = "3000"
 }
 module "server-service" {
   source        = "./modules/cloud-run"
-  name          = "dpgraham-server"
+  name          = "${var.project}-server"
   image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", google_artifact_registry_repository.dpgraham_com.location, var.project, google_artifact_registry_repository.dpgraham_com.repository_id, var.server_image_name)
   vpc_connector = google_vpc_access_connector.dpgraham-vpc-connector.id
   port          = "8080"
-  env = [
+  env           = [
     {
       name  = "DB_PORT"
       value = "5432"

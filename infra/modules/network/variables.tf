@@ -5,6 +5,12 @@ variable "project" {
   type        = string
 }
 
+variable "region" {
+  description = "The region to deploy to"
+  type        = string
+  default     = "us-east1"
+}
+
 variable "environment" {
   description = "The environment to deploy to"
   type        = string

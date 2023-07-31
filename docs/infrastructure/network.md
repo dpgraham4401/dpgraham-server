@@ -6,9 +6,15 @@ This project uses an internal terraform module called `network` to create a netw
 
 ### VPC
 
-At the top of our network hierarchy is the [VPC](https://cloud.google.com/vpc/docs). The VPC provides networking for the
-cloud-based services (CLoud SQL, VMs, GKE, etc.) that we will create.
-It is a private network, by default, unless you open up firewall rules or provide some sort of access.
+At the top of our network hierarchy is the [VPC](https://cloud.google.com/vpc/docs).
+
+from the
+GCP [google_compute_subnetwork terraform docs](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork.html):
+
+> Each GCP project contains one or more VPC networks. Each VPC network is a global entity spanning all GCP regions. This
+> global VPC network allows VM instances and other resources to communicate with each other via internal, private IP
+> addresses.
+
 Not all services are created within the VPC, for example Cloud Run, Cloud Functions, and App Engine (weirdly enough). In
 those instances you need to create a [connector](https://cloud.google.com/vpc/docs/configure-serverless-vpc-access).
 
@@ -19,7 +25,11 @@ ToDo: study up on differences in Global, Regional and Zonal resources.
 
 ### Subnets
 
-Subnets are a subdivision of a VPC. They are used to isolate resources within a VPC, and for routing traffic within a
+>
+> Each VPC network is subdivided into subnets, and each subnet is contained within a single region. You can have more
+> than one subnet in a region for a given VPC network. Each subnet has a contiguous private RFC1918 IP space.
+
+Subnets are a subdivision of a VPC. They allow us to isolate resources and for route traffic within a
 VPC. For example, we can create a subnet (within a specified [CIDR](https://aws.amazon.com/what-is/cidr/) range) for our
 databases
 

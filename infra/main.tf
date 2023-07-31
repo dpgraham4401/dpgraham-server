@@ -61,6 +61,12 @@ resource "google_vpc_access_connector" "dpgraham-vpc-connector" {
   ip_cidr_range = "10.14.0.0/28"
 }
 
+module "network" {
+  source      = "./modules/network"
+  project     = var.project
+  environment = "development"
+}
+
 #module "database" {
 #  source      = "./modules/sql"
 #  name        = var.db_name

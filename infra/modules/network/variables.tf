@@ -19,3 +19,13 @@ variable "environment" {
     error_message = "Environment must be one of [dev, prod]"
   }
 }
+
+variable "subnets" {
+  description = "The subnets to deploy to"
+  type        = list(object({
+    subnet_name   = string
+    subnet_ip     = string
+    subnet_region = string
+  }))
+  default = []
+}

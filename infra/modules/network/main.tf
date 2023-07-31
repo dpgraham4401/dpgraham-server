@@ -20,15 +20,10 @@ module "vpc" {
   source  = "terraform-google-modules/network/google"
   version = "~> 7.1"
 
-  project_id   = var.project
-  network_name = local.vpc_name
-  routing_mode = "GLOBAL"
+  project_id              = var.project
+  network_name            = local.vpc_name
+  routing_mode            = "GLOBAL"
+  auto_create_subnetworks = true
 
-  subnets = [
-    {
-      subnet_name   = "subnet-01"
-      subnet_ip     = "10.10.10.0/24"
-      subnet_region = var.region
-    },
-  ]
+  subnets = var.subnets
 }

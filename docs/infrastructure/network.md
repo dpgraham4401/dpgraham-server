@@ -21,6 +21,9 @@ those instances you need to create a [connector](https://cloud.google.com/vpc/do
 GCP projects come with a default VPC, I do not use the default VPC and instead create a (custom, currently not in auto
 mode) VPC.
 
+Dev and Prod reside in separate VPCs. Ideally I would like to separate projects, and even billing accounts, but that is
+overkill for this project. For now, we keep the two projects on different virtual networks.
+
 ToDo: study up on differences in Global, Regional and Zonal resources.
 
 ### Subnets

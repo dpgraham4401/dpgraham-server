@@ -33,7 +33,7 @@ module "database" {
   db_password = var.db_password
   db_username = var.db_username
   environment = "development"
-  vpc         = google_compute_network.vpc.id
+  vpc         = module.network.vpc
 }
 
 module "load_balancer" {

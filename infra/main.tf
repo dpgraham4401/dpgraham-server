@@ -17,10 +17,6 @@ provider "google" {
   zone    = "us-east1-b"
 }
 
-resource "google_compute_network" "vpc" {
-  name = "${var.project}-vpc"
-}
-
 module "network" {
   source      = "./modules/network"
   project     = var.project

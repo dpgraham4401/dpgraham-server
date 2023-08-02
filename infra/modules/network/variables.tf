@@ -20,21 +20,16 @@ variable "environment" {
   }
 }
 
+# Note: A VPC is a global resource, subnets are regional.
 variable "subnets" {
-  description = "The subnets to deploy to"
+  description = "Any subnets of the VPC."
   type        = list(object({
-    subnet_name                      = string
-    subnet_ip                        = string
-    subnet_region                    = string
-    subnet_private_access            = optional(string)
-    subnet_private_ipv6_access       = optional(string)
-    subnet_flow_logs                 = optional(string)
-    subnet_flow_logs_interval        = optional(string)
-    subnet_flow_logs_sampling        = optional(string)
-    subnet_flow_logs_metadata        = optional(string)
-    subnet_flow_logs_filter          = optional(string)
-    subnet_flow_logs_metadata_fields = optional(list(string))
-    description                      = optional(string)
+    subnet_name                = string
+    subnet_ip                  = string
+    subnet_region              = string
+    subnet_private_access      = optional(string)
+    subnet_private_ipv6_access = optional(string)
+    description                = optional(string)
   }))
   default = []
 }

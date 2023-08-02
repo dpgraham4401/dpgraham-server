@@ -58,7 +58,7 @@ resource "google_project_service" "vpcaccess-api" {
 resource "google_vpc_access_connector" "dpgraham-vpc-connector" {
   name          = "${var.project}-vpc-connector"
   network       = google_compute_network.vpc.name
-  ip_cidr_range = "10.14.0.0/28"
+  ip_cidr_range = "10.14.144.0/28"
 }
 
 module "network" {
@@ -112,7 +112,7 @@ module "server-service" {
   image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", google_artifact_registry_repository.dpgraham_com.location, var.project, google_artifact_registry_repository.dpgraham_com.repository_id, var.server_image_name)
   vpc_connector = google_vpc_access_connector.dpgraham-vpc-connector.id
   port          = "8080"
-  env = [
+  env           = [
     {
       name  = "DB_PORT"
       value = "5432"

@@ -1,5 +1,10 @@
+locals {
+  name               = var.environment == "production" ? var.name : "${var.name}-${var.environment}"
+  max_instance_count = var.environment == "production" ? 3 : 1
+}
+
 resource "google_cloud_run_v2_service" "default" {
-  name     = var.name
+  name     = local.name
   location = var.region
   lifecycle {
     ignore_changes = [template, client, client_version, labels]
@@ -25,7 +30,7 @@ resource "google_cloud_run_v2_service" "default" {
     }
     scaling {
       # Limit scale up to prevent any cost blow outs!
-      max_instance_count = var.max_count
+      max_instance_count = local.max_instance_count
     }
   }
 }

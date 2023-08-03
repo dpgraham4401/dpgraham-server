@@ -61,6 +61,7 @@ module "frontend-service" {
   image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", google_artifact_registry_repository.dpgraham_com.location, var.project, google_artifact_registry_repository.dpgraham_com.repository_id, var.client_image_name)
   vpc_connector = module.database.vpc_connector
   port          = "3000"
+  environment   = "production"
 }
 module "server-service" {
   source        = "./modules/cloud-run"
@@ -68,6 +69,7 @@ module "server-service" {
   image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", google_artifact_registry_repository.dpgraham_com.location, var.project, google_artifact_registry_repository.dpgraham_com.repository_id, var.server_image_name)
   vpc_connector = module.database.vpc_connector
   port          = "8080"
+  environment   = "production"
   env           = [
     {
       name  = "DB_PORT"

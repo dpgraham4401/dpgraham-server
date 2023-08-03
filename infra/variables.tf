@@ -19,20 +19,12 @@ variable "region" {
 variable "db_username" {
   description = "Database administrator username"
   type        = string
-  default     = "root" // POC for now
 }
 
 variable "db_password" {
   description = "Database administrator password"
-  default     = "password123" // POC for now
   type        = string
   sensitive   = true
-}
-
-variable "db_host" {
-  description = "Database host ip address"
-  default     = "10.14.144.3" // POC for now
-  type        = string
 }
 
 variable "db_name" {

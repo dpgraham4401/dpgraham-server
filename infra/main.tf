@@ -50,7 +50,7 @@ module "domain" {
 
 resource "google_artifact_registry_repository" "dpgraham_com" {
   location      = var.region
-  repository_id = "dpgraham-com"
+  repository_id = var.repo_id
   description   = "Repository for dpgraham.com"
   format        = "DOCKER"
 }

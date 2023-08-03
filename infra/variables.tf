@@ -52,3 +52,9 @@ variable "client_image_name" {
   type        = string
   default     = "dpgraham-client"
 }
+
+variable "repo_id" {
+  description = "Then name of the repository, should be the same as the github user or org"
+  type        = string
+  default     = "dpgraham4401"
+}

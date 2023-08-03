@@ -49,17 +49,16 @@ module "domain" {
   ipv4_address = module.load_balancer.ip_address
 }
 
-resource "google_artifact_registry_repository" "dpgraham_com" {
-  location      = var.region
-  repository_id = var.repo_id
-  description   = "Repository for dpgraham.com"
-  format        = "DOCKER"
+module "artifact_registry" {
+  source = "./modules/registry"
+  repo   = var.repo_id
+  region = var.region
 }
 
 module "frontend-service" {
   source        = "./modules/cloud-run"
   name          = "${var.project}-frontend"
-  image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", google_artifact_registry_repository.dpgraham_com.location, var.project, google_artifact_registry_repository.dpgraham_com.repository_id, var.client_image_name)
+  image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", module.artifact_registry.location, var.project, module.artifact_registry.id, var.client_image_name)
   vpc_connector = module.database.vpc_connector
   port          = "3000"
   environment   = "production"
@@ -67,7 +66,7 @@ module "frontend-service" {
 module "server-service" {
   source        = "./modules/cloud-run"
   name          = "${var.project}-server"
-  image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", google_artifact_registry_repository.dpgraham_com.location, var.project, google_artifact_registry_repository.dpgraham_com.repository_id, var.server_image_name)
+  image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", module.artifact_registry.location, var.project, module.artifact_registry.id, var.server_image_name)
   vpc_connector = module.database.vpc_connector
   port          = "8080"
   environment   = "production"

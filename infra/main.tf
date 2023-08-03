@@ -1,7 +1,7 @@
 terraform {
   backend "gcs" {
-    bucket = "dpgraham-terraform-state1"
-    prefix = "terraform1"
+    bucket = "dpgraham-terraform-state"
+    prefix = "terraform-prod"
   }
   required_providers {
     google = {
@@ -20,7 +20,7 @@ provider "google" {
 module "network" {
   source      = "./modules/network"
   project     = var.project
-  environment = "development"
+  environment = "production"
 }
 
 module "database" {
@@ -28,7 +28,7 @@ module "database" {
   name        = var.db_name
   db_password = var.db_password
   db_username = var.db_username
-  environment = "development"
+  environment = "production"
   vpc         = module.network.vpc
 }
 
@@ -37,6 +37,7 @@ module "load_balancer" {
   name             = "${var.project}-frontend"
   backend_service  = module.server-service.name
   frontend_service = module.frontend-service.name
+  environment      = "production"
 }
 
 

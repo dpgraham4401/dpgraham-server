@@ -15,6 +15,15 @@ variable "region" {
   default     = "us-east1"
 }
 
+variable "environment" {
+  description = "the environment to deploy to"
+  type        = string
+  validation {
+    condition     = contains(["development", "production"], var.environment)
+    error_message = "environment must be one of development or production"
+  }
+}
+
 variable "port" {
   type        = string
   description = "The PORT cloud run will listen for"
@@ -28,12 +37,6 @@ variable "image" {
 variable "vpc_connector" {
   type        = string
   description = "The ID of the VPC connector to use"
-}
-
-variable "max_count" {
-  type        = number
-  description = "The maximum number of instances to run"
-  default     = 3
 }
 
 variable "env" {

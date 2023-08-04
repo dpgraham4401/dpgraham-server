@@ -16,7 +16,7 @@ variable "dns_zone_name" {
 }
 
 variable "ipv4_address" {
-  description = "The Statis address that nameservers should resolve to for our top level domain"
+  description = "The Static address that nameservers should resolve to for our top level domain"
   type        = string
 }
 

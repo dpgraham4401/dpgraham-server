@@ -1,7 +1,7 @@
 terraform {
   backend "gcs" {
-    bucket = "dpgraham-terraform-state1"
-    prefix = "terraform1"
+    bucket = "dpgraham-terraform-state"
+    prefix = "terraform-prod"
   }
   required_providers {
     google = {
@@ -12,69 +12,32 @@ terraform {
 }
 
 provider "google" {
-  project = "dpgraham"
-  region  = "us-east1"
+  project = var.project
+  region  = var.region
   zone    = "us-east1-b"
 }
 
-resource "google_sql_database_instance" "dpgraham_postgres" {
-  name             = "dpgraham-postgres"
-  database_version = "POSTGRES_14"
-  region           = var.region
-  project          = var.project
-
-  settings {
-    tier              = "db-f1-micro"
-    activation_policy = "ALWAYS"
-    availability_type = "ZONAL"
-    database_flags {
-      name  = "cloudsql.iam_authentication"
-      value = "on"
-    }
-  }
+module "network" {
+  source      = "./modules/network"
+  project     = var.project
+  environment = "production"
 }
 
-resource "google_sql_database" "dpgraham_sql" {
-  name     = "dpgraham"
-  instance = google_sql_database_instance.dpgraham_postgres.name
+module "database" {
+  source      = "./modules/sql"
+  name        = var.db_name
+  db_password = var.db_password
+  db_username = var.db_username
+  environment = "production"
+  vpc         = module.network.vpc
 }
-
-resource "google_sql_user" "users" {
-  instance = google_sql_database_instance.dpgraham_postgres.name
-  type     = "BUILT_IN"
-  name     = var.db_username
-  password = var.db_password
-}
-
-resource "google_compute_network" "vpc" {
-  name = "dpgraham-vpc"
-}
-
-resource "google_project_service" "vpcaccess-api" {
-  project = var.project
-  service = "vpcaccess.googleapis.com"
-}
-
-resource "google_vpc_access_connector" "dpgraham-vpc-connector" {
-  name          = "dpgraham-vpc-connector"
-  network       = google_compute_network.vpc.name
-  ip_cidr_range = "10.14.0.0/28"
-}
-
-#module "database" {
-#  source      = "./modules/sql"
-#  name        = var.db_name
-#  db_password = var.db_password
-#  db_username = var.db_username
-#  environment = "development"
-#  vpc         = google_compute_network.vpc.id
-#}
 
 module "load_balancer" {
   source           = "./modules/gcp-load-balancer"
-  name             = "dpgraham-frontend"
+  name             = "${var.project}-frontend"
   backend_service  = module.server-service.name
   frontend_service = module.frontend-service.name
+  environment      = "production"
 }
 
 
@@ -86,46 +49,47 @@ module "domain" {
   ipv4_address = module.load_balancer.ip_address
 }
 
-resource "google_artifact_registry_repository" "dpgraham_com" {
-  location      = var.region
-  repository_id = "dpgraham-com"
-  description   = "Repository for dpgraham.com"
-  format        = "DOCKER"
+module "artifact_registry" {
+  source = "./modules/registry"
+  repo   = var.repo_id
+  region = var.region
 }
 
 module "frontend-service" {
   source        = "./modules/cloud-run"
-  name          = "dpgraham-frontend"
-  image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", google_artifact_registry_repository.dpgraham_com.location, var.project, google_artifact_registry_repository.dpgraham_com.repository_id, var.client_image_name)
-  vpc_connector = google_vpc_access_connector.dpgraham-vpc-connector.id
+  name          = "${var.project}-frontend"
+  image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", module.artifact_registry.location, var.project, module.artifact_registry.id, var.client_image_name)
+  vpc_connector = module.database.vpc_connector
   port          = "3000"
+  environment   = "production"
 }
 module "server-service" {
   source        = "./modules/cloud-run"
-  name          = "dpgraham-server"
-  image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", google_artifact_registry_repository.dpgraham_com.location, var.project, google_artifact_registry_repository.dpgraham_com.repository_id, var.server_image_name)
-  vpc_connector = google_vpc_access_connector.dpgraham-vpc-connector.id
+  name          = "${var.project}-server"
+  image         = format("%s-docker.pkg.dev/%s/%s/%s:latest", module.artifact_registry.location, var.project, module.artifact_registry.id, var.server_image_name)
+  vpc_connector = module.database.vpc_connector
   port          = "8080"
-  env = [
+  environment   = "production"
+  env           = [
     {
       name  = "DB_PORT"
       value = "5432"
     },
     {
       name  = "DB_NAME"
-      value = google_sql_database.dpgraham_sql.name
+      value = module.database.db_name
     },
     {
       name  = "DB_USER"
-      value = google_sql_user.users.name
+      value = module.database.db_user
     },
     {
       name  = "DB_PASSWORD"
-      value = google_sql_user.users.password
+      value = module.database.db_password
     },
     {
       name  = "DB_HOST"
-      value = var.db_host
+      value = module.database.db_host
     }
   ]
 }

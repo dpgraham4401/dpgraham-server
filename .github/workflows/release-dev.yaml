@@ -13,6 +13,7 @@ jobs:
     if: github.repository == 'dpgraham-com/dpgraham-server'
     permissions:
       id-token: 'write'
+      contents: 'read'
     uses: ./.github/workflows/build-gcp-image.yaml
     with:
       environment: 'development'
@@ -23,6 +24,7 @@ jobs:
     if: github.repository == 'dpgraham-com/dpgraham-server'
     permissions:
       id-token: 'write'
+      contents: 'read'
     uses: ./.github/workflows/cloud-run-deploy.yaml
     needs: build_gcp_image
     with:

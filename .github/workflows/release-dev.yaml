@@ -6,6 +6,12 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**/README.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'Content'
+      - '.run'
 
 jobs:
   build_gcp_image:
@@ -34,7 +40,7 @@ jobs:
     secrets: inherit
 
   build_ghcr_image:
-    if: github.repository == 'dpgraham-com/dpgraham-server'
     name: Build Image for GHCR
+    if: github.repository == 'dpgraham-com/dpgraham-server'
     uses: ./.github/workflows/build-ghcr-image.yaml
     secrets: inherit

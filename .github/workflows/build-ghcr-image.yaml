@@ -11,6 +11,7 @@ jobs:
     name: Build Image for GHCR
     if: github.repository == 'dpgraham-com/dpgraham-server'
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout
         uses: actions/checkout@v3

@@ -9,22 +9,26 @@ on:
 
 jobs:
   build_gcp_image:
-    if: github.repository == 'dpgraham-com/dpgraham-server'
     name: Build Image for GCP
+    if: github.repository == 'dpgraham-com/dpgraham-server'
+    permissions:
+      id-token: 'write'
     uses: ./.github/workflows/build-gcp-image.yaml
     with:
-      environment: development
+      environment: 'development'
     secrets: inherit
 
   deploy_to_cloud_run:
-    if: github.repository == 'dpgraham-com/dpgraham-server'
     name: Deploy to Cloud Run
+    if: github.repository == 'dpgraham-com/dpgraham-server'
+    permissions:
+      id-token: 'write'
     uses: ./.github/workflows/cloud-run-deploy.yaml
     needs: build_gcp_image
     with:
-      environment: development
+      environment: 'development'
       version: ${{ needs.build_gcp_image.outputs.version }}
-      service: server-dev
+      service: 'server-dev'
     secrets: inherit
 
   build_ghcr_image:
